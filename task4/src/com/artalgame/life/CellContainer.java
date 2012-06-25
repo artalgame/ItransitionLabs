@@ -5,6 +5,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class CellContainer {
    private byte[] cells;
+   
    private int rowCount,columnCount;
    private int oldRowCount, oldColumnCount;
    private MessageDigest digest;
@@ -24,7 +25,6 @@ public class CellContainer {
    
    public void setElement(int row, int column, byte value) throws NoSuchAlgorithmException{
 	   cells[row*rowCount+column] = value;
-	   updateHash();
    }
    
    public byte getElement(int row, int column){
@@ -43,15 +43,15 @@ public class CellContainer {
    }
    
    private MessageDigest createDigest() throws NoSuchAlgorithmException{
-	   return MessageDigest.getInstance("SHA-512");
+	   return MessageDigest.getInstance("SHA-256");
    }
    
-   private void updateHash() throws NoSuchAlgorithmException{
+   public void updateHash() throws NoSuchAlgorithmException{
 	   if (digest == null){
 		   digest = createDigest();
 	   }
-	   digest.update(cells);
-	   byte[] code = digest.digest();
+	   //digest.update(cells);
+	   byte[] code = digest.digest(cells);
 	   hash = new StringBuffer();
 	   for(int i=0;i<code.length;i++){
 		   hash.append(Integer.toHexString(0xFF & code[i]));
@@ -72,7 +72,7 @@ public class CellContainer {
 	   }
 	   return row;
    }
-      
+   
    private int  checkColumn(int column){
 	   if(column == -1){
 		   return columnCount-1;
@@ -108,7 +108,7 @@ public class CellContainer {
    private void copyElements(int minRowCount,int minColummnCount,byte[] newCells){
 	   for(int i=0;i<minRowCount;i++)
 	       for(int j=0;j<minColummnCount;j++){
-	    	   newCells[i*minRowCount+j] = getOldElement(i,j); 
+	    	   newCells[i*rowCount+j] = getOldElement(i,j); 
 	       }
    }
    

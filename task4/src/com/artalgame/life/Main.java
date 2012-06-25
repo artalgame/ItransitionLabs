@@ -7,22 +7,19 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.security.NoSuchAlgorithmException;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class Main extends JFrame 
-                  implements ActionListener {
-
+                  implements ActionListener, Runnable {
 	/**
+	 * Program begins here
 	 * @param args
 	 */
 	public static void main(String[] args) {
@@ -34,6 +31,7 @@ public class Main extends JFrame
 	private Field field;
 	
 	private JSpinner heightSpinner;
+	
 	private JSpinner widthSpinner;
 	
 	private JLabel heightLabel;
@@ -48,49 +46,47 @@ public class Main extends JFrame
 
 	private JButton resizeButton;
 
-	private JButton hashButton;
-
-	private JTextField hashTextField;
-	
-	private Timer timer;
-
-	private JSlider jSlider0;
-	
-	private int speed;
-
 	private JButton clearButton;
 
-	private JLabel speedLabel;
+	private JLabel startCycleLabel;
 
 	private JButton cycleButton;
 
 	private JLabel countCycleLabel;
+	
+	private Thread cycleCalculatingThread;
+	
+	private Thread drawThread;
+
+	private JSlider speedSlider;
 	
 	public Main(){
 		super();
 		initComponents();
 	}
 	
-	private void initComponents() {
-		setLayout(null);
-		add(getHeightSpinner());
+	private void addLabels()
+	{
 		add(getWidthLabel());
 		add(getHeightLabel());
-		add(getResizeButton());
-		add(getWidthSpinner());
-		add(getHashTextField());
-		add(getHashButton());
+	}
+	private void addButtons(){
 		add(getNextButton());
 		add(getPauseButton());
 		add(getPlayButton());
-		add(getClearButton());
-		add(getJSlider0());
-		add(getJLabel0());
 		add(getCycleButton());
-		add(getJLabel0());
-		add(getJLabel1());
+		add(getResizeButton());
+		add(getClearButton());
+	}
+	private void addSpiners(){
+		add(getHeightSpinner());
+		add(getWidthSpinner());
+	}
+	private void addSliders(){
+		add(getSpeedSlider());
+	}
+	private void  setWindowListener(){
 		addWindowListener(new WindowAdapter() {
-	
 			public void windowOpened(WindowEvent event) {
 				try {
 					windowWindowOpened(event);
@@ -99,21 +95,44 @@ public class Main extends JFrame
 				}
 			}
 		});
+	}
+	private void initComponents() {
+		setLayout(null);
+		addLabels();
+		addButtons();
+		addSpiners();
+		addSliders();
+	    setWindowListener();
+		//add(getJLabel0());
+		//add(getJLabel1());
 		setSize(940, 650);
+	}
+
+	private JSlider getSpeedSlider() {
+		if (speedSlider == null) {
+			speedSlider = new JSlider();
+			speedSlider.setBounds(787, 134, 150, 16);
+			speedSlider.addChangeListener(new ChangeListener() {
+	
+				public void stateChanged(ChangeEvent event) {
+					speedSliderChangeStateChanged(event);
+				}
+			});
+		}
+		return speedSlider;
 	}
 
 	private JButton getClearButton() {
 		if (clearButton == null) {
 			clearButton = new JButton();
 			clearButton.setText("Clear");
-			clearButton.setBounds(817, 94, 81, 32);
+			clearButton.setBounds(816, 94, 81, 32);
 			clearButton.addMouseListener(new MouseAdapter() {
 	
 				public void mouseClicked(MouseEvent event) {
 					try {
 						clearButtonMouseMouseClicked(event);
 					} catch (NoSuchAlgorithmException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -125,8 +144,7 @@ public class Main extends JFrame
 	private JLabel getJLabel1() {
 		if (countCycleLabel == null) {
 			countCycleLabel = new JLabel();
-			countCycleLabel.setText("f");
-			countCycleLabel.setBounds(827, 453, 41, 16);
+			countCycleLabel.setBounds(793, 455, 116, 16);
 		}
 		return countCycleLabel;
 	}
@@ -136,55 +154,22 @@ public class Main extends JFrame
 			cycleButton = new JButton();
 			cycleButton.setText("calculate cycle");
 			cycleButton.setBounds(787, 364, 128, 40);
+			cycleButton.addMouseListener(new MouseAdapter() {
+	
+				public void mouseClicked(MouseEvent event) {
+					cycleButtonMouseMouseClicked(event);
+				}
+			});
 		}
 		return cycleButton;
 	}
 
 	private JLabel getJLabel0() {
-		if (speedLabel == null) {
-			speedLabel = new JLabel();
-			speedLabel.setText("d");
-			speedLabel.setBounds(827, 423, 41, 16);
+		if (startCycleLabel == null) {
+			startCycleLabel = new JLabel();
+			startCycleLabel.setBounds(789, 427, 126, 16);
 		}
-		return speedLabel;
-	}
-
-	private JSlider getJSlider0() {
-		if (jSlider0 == null) {
-			jSlider0 = new JSlider();
-			jSlider0.setBounds(863, 136, 68, 23);
-			jSlider0.addChangeListener(new ChangeListener() {
-	
-				public void stateChanged(ChangeEvent event) {
-					jSlider0ChangeStateChanged(event);
-				}
-			});
-		}
-		return jSlider0;
-	}
-
-	private JButton getHashButton() {
-		if (hashButton == null) {
-			hashButton = new JButton();
-			hashButton.setText("hash");
-			hashButton.setBounds(807, 316, 81, 26);
-			hashButton.addMouseListener(new MouseAdapter() {
-	
-				public void mouseClicked(MouseEvent event) {
-					hashButtonMouseMouseClicked(event);
-				}
-			});
-		}
-		return hashButton;
-	}
-
-	private JTextField getHashTextField() {
-		if (hashTextField == null) {
-			hashTextField = new JTextField();
-			hashTextField.setText("jTextField0");
-			hashTextField.setBounds(0, 625, 940, 22);
-		}
-		return hashTextField;
+		return startCycleLabel;
 	}
 
 	private JButton getResizeButton() {
@@ -206,7 +191,6 @@ public class Main extends JFrame
 			});
 			}
 			catch(Exception ex){
-				String s = ex.getMessage();
 			}
 		}
 		return resizeButton;
@@ -320,18 +304,21 @@ public class Main extends JFrame
 		
 	}
 	
+	private void drawingThreadInicialize(){
+		if(drawThread ==null){
+		    drawThread = new Thread(field,"draw throw");
+		    drawThread.start();
+		}
+	}
+	
 	private void showSizeErrorMessage(String message){
 		JOptionPane.showConfirmDialog(this,  message, "Warning",
 	              JOptionPane.CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
 	}
 	
 	private void nextButtonMouseMouseClicked(MouseEvent event) throws NoSuchAlgorithmException {
-		field.NextState();
-		field.repaint();
-	}
-
-	private void hashButtonMouseMouseClicked(MouseEvent event) {
-		hashTextField.setText(field.getHash());
+		field.nextState();
+		//field.repaint();
 	}
 
 	@Override
@@ -347,36 +334,62 @@ public class Main extends JFrame
 		}
 	}
 
+	
 	private void pauseButtonMouseMouseClicked(MouseEvent event) {
-		if((timer!=null)){
-			timer.stop();
-		}
+	    field.switchOffDrawing();
+	    setEnabledForControls(true);
 	}
 
-	private void playButtonMouseMouseClicked(MouseEvent event) {
-		updateTimer(speed*10);
-		timer.start();
+	private synchronized void playButtonMouseMouseClicked(MouseEvent event) {
+		drawingThreadInicialize();
+		setEnabledForControls(false);	
+		field.switchOnDrawing();
 	}
-
-	private void jSlider0ChangeStateChanged(ChangeEvent event) {
-		boolean isRunning = false;
-		if(timer!=null){
-			isRunning = timer.isRunning();
-		}
-		speed = jSlider0.getValue();
-		updateTimer(speed*10);
-		if(isRunning){
-			timer.start();
-		}
-	}
-	private void updateTimer(int newSpeed){
-		if(timer!=null){
-			timer.stop();
-		}
-		timer = new Timer(newSpeed,this);
+	
+	private void setEnabledForControls(boolean isEnabled){
+		resizeButton.setEnabled(isEnabled);
+		clearButton.setEnabled(isEnabled);
+		nextButton.setEnabled(isEnabled);
+		getCycleButton().setEnabled(isEnabled);
 	}
 
 	private void clearButtonMouseMouseClicked(MouseEvent event) throws NoSuchAlgorithmException {
 		field.clearAll();
 	}
+
+	@Override
+	public void run() {
+		try {
+			calculateCycle();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	private void calculateCycle() throws NoSuchAlgorithmException{
+		startCycleLabel.setText("cycle start: Loading...");
+		countCycleLabel.setText("cycle: Loading...");
+		field.calculateCycle();
+		startCycleLabel.setText("cycle start:"+field.getCycleStart());
+		countCycleLabel.setText("cycle:"+field.getCycle());
+	}
+
+	private void cycleButtonMouseMouseClicked(MouseEvent event) {
+		setNewCycleThread();
+		cycleCalculatingThread.start();
+	}
+	
+	private void setNewCycleThread(){
+		if(cycleCalculatingThread != null){
+			cycleCalculatingThread.interrupt();
+		}	
+		cycleCalculatingThread = new Thread(this,"calculate cycle");
+		
+	}
+
+	private void speedSliderChangeStateChanged(ChangeEvent event) {
+		field.setSpeed(speedSlider.getValue()*10);
+	}
+	
 }
