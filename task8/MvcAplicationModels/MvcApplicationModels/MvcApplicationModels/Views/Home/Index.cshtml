@@ -1,0 +1,9 @@
+﻿@model IQueryable<MvcApplicationModels.Models.Item>
+@{
+    ViewBag.Title = "Index";
+}
+<h2>
+    Index</h2>
+<p>
+@Html.ActionLink((string)ViewBag.LinkName,"List","Home",new {id ="1",hello = "world"},null);
+</p>

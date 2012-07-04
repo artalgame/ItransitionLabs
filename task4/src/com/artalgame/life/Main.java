@@ -1,12 +1,11 @@
 package com.artalgame.life;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.security.NoSuchAlgorithmException;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,7 +16,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 public class Main extends JFrame 
-                  implements ActionListener, Runnable {
+                  implements Runnable {
 	/**
 	 * Program begins here
 	 * @param args
@@ -69,7 +68,10 @@ public class Main extends JFrame
 	{
 		add(getWidthLabel());
 		add(getHeightLabel());
+		add(getStartCycleLabel());
+	    add(getCountCycleLabel());
 	}
+	
 	private void addButtons(){
 		add(getNextButton());
 		add(getPauseButton());
@@ -78,13 +80,16 @@ public class Main extends JFrame
 		add(getResizeButton());
 		add(getClearButton());
 	}
+	
 	private void addSpiners(){
 		add(getHeightSpinner());
 		add(getWidthSpinner());
 	}
+	
 	private void addSliders(){
 		add(getSpeedSlider());
 	}
+	
 	private void  setWindowListener(){
 		addWindowListener(new WindowAdapter() {
 			public void windowOpened(WindowEvent event) {
@@ -96,15 +101,14 @@ public class Main extends JFrame
 			}
 		});
 	}
+	
 	private void initComponents() {
 		setLayout(null);
-		addLabels();
 		addButtons();
-		addSpiners();
 		addSliders();
-	    setWindowListener();
-		//add(getJLabel0());
-		//add(getJLabel1());
+		addSpiners();
+		addLabels();
+		setWindowListener();
 		setSize(940, 650);
 	}
 
@@ -113,7 +117,6 @@ public class Main extends JFrame
 			speedSlider = new JSlider();
 			speedSlider.setBounds(787, 134, 150, 16);
 			speedSlider.addChangeListener(new ChangeListener() {
-	
 				public void stateChanged(ChangeEvent event) {
 					speedSliderChangeStateChanged(event);
 				}
@@ -122,26 +125,29 @@ public class Main extends JFrame
 		return speedSlider;
 	}
 
+	private void setMouseListenerForClearButton(){
+		clearButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent event) {
+				try {
+					clearButtonMouseMouseClicked(event);
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
 	private JButton getClearButton() {
 		if (clearButton == null) {
 			clearButton = new JButton();
 			clearButton.setText("Clear");
 			clearButton.setBounds(816, 94, 81, 32);
-			clearButton.addMouseListener(new MouseAdapter() {
-	
-				public void mouseClicked(MouseEvent event) {
-					try {
-						clearButtonMouseMouseClicked(event);
-					} catch (NoSuchAlgorithmException e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			setMouseListenerForClearButton();
 		}
 		return clearButton;
 	}
-
-	private JLabel getJLabel1() {
+	
+	private JLabel getCountCycleLabel() {
 		if (countCycleLabel == null) {
 			countCycleLabel = new JLabel();
 			countCycleLabel.setBounds(793, 455, 116, 16);
@@ -149,98 +155,110 @@ public class Main extends JFrame
 		return countCycleLabel;
 	}
 
+	private void setMouseListenerForCycleButton(){
+		cycleButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent event) {
+				cycleButtonMouseMouseClicked(event);
+			}
+		});
+	}
+	
 	private JButton getCycleButton() {
 		if (cycleButton == null) {
 			cycleButton = new JButton();
 			cycleButton.setText("calculate cycle");
 			cycleButton.setBounds(787, 364, 128, 40);
-			cycleButton.addMouseListener(new MouseAdapter() {
-	
-				public void mouseClicked(MouseEvent event) {
-					cycleButtonMouseMouseClicked(event);
-				}
-			});
+			setMouseListenerForCycleButton();
 		}
 		return cycleButton;
 	}
 
-	private JLabel getJLabel0() {
+	private JLabel getStartCycleLabel() {
 		if (startCycleLabel == null) {
 			startCycleLabel = new JLabel();
 			startCycleLabel.setBounds(789, 427, 126, 16);
 		}
 		return startCycleLabel;
 	}
-
+    
+	private void setMouseListenerForResizeButton(){
+		resizeButton.addMouseListener(new MouseAdapter() {
+		public void mouseClicked(MouseEvent event) {
+			try {
+				resizeButtonMouseMouseClicked(event);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	});
+	}
+	
 	private JButton getResizeButton() {
 		if (resizeButton == null) {
 			resizeButton = new JButton();
 			resizeButton.setText("resize");
 			resizeButton.setBounds(794, 60, 132, 22);
-			try{
-			resizeButton.addMouseListener(new MouseAdapter() {
-	
-				public void mouseClicked(MouseEvent event) {
-					try {
-						resizeButtonMouseMouseClicked(event);
-					} catch (NoSuchAlgorithmException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			});
-			}
-			catch(Exception ex){
-			}
+			setMouseListenerForResizeButton();
 		}
 		return resizeButton;
 	}
+    
+	private void setMouseListenerForNextButton(){
+		nextButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent event) {
+				try {
+					nextButtonMouseMouseClicked(event);
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 
+	}
+	
 	private JButton getNextButton() {
 		if (nextButton == null) {
 			nextButton = new JButton();
 			nextButton.setText("Next");
 			nextButton.setBounds(810, 266, 81, 26);
-			nextButton.addMouseListener(new MouseAdapter() {
-	
-				public void mouseClicked(MouseEvent event) {
-					try {
-						nextButtonMouseMouseClicked(event);
-					} catch (NoSuchAlgorithmException e) {
-						e.printStackTrace();
-					}
-				}
-			});
+			setMouseListenerForNextButton();
 		}
 		return nextButton;
 	}
-
+    
+	private void setMouseListenerForPauseButton(){
+		pauseButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent event) {
+				pauseButtonMouseMouseClicked(event);
+			}
+		});
+	}
+	
 	private JButton getPauseButton() {
 		if (pauseButton == null) {
 			pauseButton = new JButton();
 			pauseButton.setText("Pause");
 			pauseButton.setBounds(810, 219, 81, 26);
-			pauseButton.addMouseListener(new MouseAdapter() {
-	
-				public void mouseClicked(MouseEvent event) {
-					pauseButtonMouseMouseClicked(event);
-				}
-			});
+			setMouseListenerForPauseButton();
 		}
 		return pauseButton;
 	}
 
+	private void setMouseListenerForPlayButton(){
+		playButton.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent event) {
+				playButtonMouseMouseClicked(event);
+			}
+		});
+	}
+	
 	private JButton getPlayButton() {
 		if (playButton == null) {
 			playButton = new JButton();
 			playButton.setText("Play");
 			playButton.setBounds(810, 172, 81, 26);
-			playButton.addMouseListener(new MouseAdapter() {
-	
-				public void mouseClicked(MouseEvent event) {
-					playButtonMouseMouseClicked(event);
-				}
-			});
+			setMouseListenerForPlayButton();
 		}
 		return playButton;
 	}
@@ -283,7 +301,7 @@ public class Main extends JFrame
 		field = new Field();
 		field.setBounds(0, 0, 601, 601);
 		try{
-			field.updateSize(5, 5);
+			field.updateSize(50, 50);
 		}
 		catch(Exception ex){
 			showSizeErrorMessage(ex.getMessage());
@@ -318,22 +336,7 @@ public class Main extends JFrame
 	
 	private void nextButtonMouseMouseClicked(MouseEvent event) throws NoSuchAlgorithmException {
 		field.nextState();
-		//field.repaint();
 	}
-
-	@Override
-	/**This method is needed for timer that controls animation 
-	 * 
-	 */
-	public void actionPerformed(ActionEvent e) {
-		try {
-			nextButtonMouseMouseClicked(null);
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
-
 	
 	private void pauseButtonMouseMouseClicked(MouseEvent event) {
 	    field.switchOffDrawing();
@@ -350,6 +353,7 @@ public class Main extends JFrame
 		resizeButton.setEnabled(isEnabled);
 		clearButton.setEnabled(isEnabled);
 		nextButton.setEnabled(isEnabled);
+		playButton.setEnabled(isEnabled);
 		getCycleButton().setEnabled(isEnabled);
 	}
 
@@ -361,8 +365,8 @@ public class Main extends JFrame
 	public void run() {
 		try {
 			calculateCycle();
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
+		} 
+		catch (NoSuchAlgorithmException e) {
 			e.printStackTrace();
 		}
 	}

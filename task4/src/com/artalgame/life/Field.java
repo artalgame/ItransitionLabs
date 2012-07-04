@@ -13,26 +13,25 @@ import java.util.HashMap;
 
 import javax.swing.JPanel;
 
-public class Field extends JPanel implements ActionListener,Runnable {
+public class Field extends JPanel implements Runnable {
 	public static final int DEFAULT_COUNT_ROW = 30;
 	public static final int DEFAULT_COUNT_COLUMN = 30;
 	public static final int MAX_ROW_COUNT = 300;
 	public static final int MAX_COLUMN_COUNT = 300;
+	public static final int DEFAULT_FIELD_WIDTH = 600;
+	public static final int DEFAULT_FIELD_HEIGHT = 600;
+	public static final int DEFAULT_SPEED = 100;
 
 	private int rowCount,columnCount;
 	private CellContainer cells;
 	private Dimension cellSize;
-	private boolean isMousePressed = false;
 
-	private boolean isDrawing = false;
-    private int speed = 100;
+	private boolean isDrawing;
+    private int speed;
 	private int cycle;
 	private int cycleStart;
-
-	public Field()  throws NoSuchAlgorithmException{
-		super();
-		setBackground(Color.BLACK);
-		setParameters();
+    
+	private void setMouseListenerForField(){
 		super.addMouseListener(new MouseAdapter() {
 
 			public void mouseClicked(MouseEvent event) {
@@ -44,11 +43,20 @@ public class Field extends JPanel implements ActionListener,Runnable {
 				}
 			}
 		});
+	
+	}
+	
+	public Field()  throws NoSuchAlgorithmException{
+		super();
+		setBackground(Color.BLACK);
+		setMouseListenerForField();
+		setParameters();
 	}
 
 	public void setParameters() throws NoSuchAlgorithmException{
 		setRowCount(DEFAULT_COUNT_ROW);
 		setColumnCount(DEFAULT_COUNT_COLUMN);
+		speed = DEFAULT_SPEED;
 		updateCellSize();
 		cells = new CellContainer(getRowCount(), getColumnCount());
 	}
@@ -57,7 +65,8 @@ public class Field extends JPanel implements ActionListener,Runnable {
 		cells = nextState(cells);
 		repaint();
 	}
-	public CellContainer nextState(CellContainer oldCells) throws NoSuchAlgorithmException{
+	
+	public  CellContainer nextState(CellContainer oldCells) throws NoSuchAlgorithmException{
 		CellContainer newCells = getNewContainer();
 		for(int i = 0; i < rowCount; i++)
 			for(int j = 0; j < columnCount; j++){
@@ -113,6 +122,7 @@ public class Field extends JPanel implements ActionListener,Runnable {
 			setRowCount(rowCount);
 			updateCellSize();
 			cells.updateSize(rowCount, columnCount);
+			setSize(columnCount*cellSize.width+1,rowCount*cellSize.height+1);
 			drawField();
 		}
 		else
@@ -138,7 +148,7 @@ public class Field extends JPanel implements ActionListener,Runnable {
 		}
 	}
 
-	public void drawCells(Graphics g){
+	private void drawCells(Graphics g){
 		for(int i = 0; i < getRowCount(); i++)
 			for(int j = 0; j< getColumnCount(); j++){
 				byte state = cells.getElement(i, j);
@@ -218,11 +228,11 @@ public class Field extends JPanel implements ActionListener,Runnable {
 
 	private void drawRect(int row,int column,Graphics g){
 		g.setColor(Color.BLACK);
-		g.drawRect(row*cellSize.width, column*cellSize.height, cellSize.width, cellSize.height);
+		g.drawRect(column*cellSize.width,row*cellSize.height, cellSize.width, cellSize.height);
 	}
 
 	private void clearRect(int row, int column, Graphics g){
-		g.clearRect(row*cellSize.width, column*cellSize.height, cellSize.width, cellSize.height);
+		g.clearRect(column*cellSize.width,row*cellSize.height, cellSize.width, cellSize.height);
 	}
 
 	private void drawVertical(Graphics g){
@@ -253,24 +263,37 @@ public class Field extends JPanel implements ActionListener,Runnable {
 	private void updateCellSize(){
 		int width = 0;
 		if(getColumnCount()>0){
-			width = getFieldSize().width/getColumnCount();	
+			width = DEFAULT_FIELD_WIDTH/getColumnCount();	
 		}
+		
 		int height = 0;
 		if(getRowCount()>0){
-			height = getFieldSize().height/getRowCount();
+			height = DEFAULT_FIELD_HEIGHT/getRowCount();
 		}
-		cellSize = new Dimension(width,height);
+		int min = Math.min(width, height);
+		cellSize = new Dimension(min,min);
 	}
 
 	private Dimension getCellFromPixel(int x, int y){
-		Dimension cell = new Dimension(x/cellSize.width, y/cellSize.height);
-		return cell;
+			Dimension cell = new Dimension(y/cellSize.height,x/cellSize.width );
+			return cell;
 	}
 
+	private boolean checkCoordinate(int x, int y){
+		if((x>cellSize.width*columnCount)||(y>cellSize.height*rowCount)){
+			return false;
+		}
+		else{
+			return true;
+		}
+	}
+	
 	private void clicked(MouseEvent event) throws NoSuchAlgorithmException{
 		int x = event.getX();
 		int y = event.getY();
-		swapElementState(x, y);
+		if(checkCoordinate(x,y)){
+		    swapElementState(x, y);
+		}
 	}
 
 	private void swapElementState(int mouseX, int mouseY) throws NoSuchAlgorithmException{
@@ -283,24 +306,6 @@ public class Field extends JPanel implements ActionListener,Runnable {
 		return cells.getHash();
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		try {
-			checkDrawing();
-		} catch (NoSuchAlgorithmException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	}
-	private void checkDrawing() throws NoSuchAlgorithmException{
-		if(isMousePressed){
-			Point mouseCoordinate = this.getMousePosition();
-			if(mouseCoordinate != null){
-				swapElementState(mouseCoordinate.x, mouseCoordinate.y);
-			}
-		}
-	}
-	
 	public void setSpeed(int speed){
 		if(speed>0){
 			this.speed = speed;

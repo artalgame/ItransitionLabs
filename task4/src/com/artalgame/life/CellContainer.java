@@ -24,13 +24,13 @@ public class CellContainer {
    }
    
    public void setElement(int row, int column, byte value) throws NoSuchAlgorithmException{
-	   cells[row*rowCount+column] = value;
+	   cells[row*columnCount+column] = value;
    }
    
    public byte getElement(int row, int column){
 	   row = checkRow(row);
 	   column = checkColumn(column);
-	   return cells[row*rowCount+column];
+	   return cells[row*columnCount+column];
    }   
    
    public void swapElement(int row, int column) throws NoSuchAlgorithmException{
@@ -61,7 +61,7 @@ public class CellContainer {
    private byte getOldElement(int row,int column){
 	   row = checkRow(row);
 	   column = checkColumn(column);
-	   return cells[row*oldRowCount+column];
+	   return cells[row*oldColumnCount+column];
    }
    private int  checkRow(int row){
 	   if(row == -1){
@@ -108,7 +108,7 @@ public class CellContainer {
    private void copyElements(int minRowCount,int minColummnCount,byte[] newCells){
 	   for(int i=0;i<minRowCount;i++)
 	       for(int j=0;j<minColummnCount;j++){
-	    	   newCells[i*rowCount+j] = getOldElement(i,j); 
+	    	   newCells[i*columnCount+j] = getOldElement(i,j); 
 	       }
    }
    

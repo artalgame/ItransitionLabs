@@ -1,0 +1,11 @@
+﻿@{
+    ViewBag.Title = "List";
+}
+
+<h2>List</h2>
+<ul>
+@foreach (MvcApplicationModels.Models.Category cat in ViewBag.Categories)
+{
+    <li>@Html.ActionLink(cat.Title, "Category", "Home", new { id = cat.CategoryID }, null)</li> 
+}
+</ul>

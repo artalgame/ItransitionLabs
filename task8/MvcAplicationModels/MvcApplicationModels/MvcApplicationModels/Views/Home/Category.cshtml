@@ -1,0 +1,15 @@
+﻿@model MvcApplicationModels.Models.Category
+@{
+    ViewBag.Title = "Category";
+}
+<h2>
+    Category</h2>
+@using (Html.BeginForm())
+{
+    @Html.Hidden("CategoryID", ViewData.Model.CategoryID);
+    <p>
+        Title of category: @Html.TextBox("Title", ViewData.Model.Title);
+    </p>
+    <br />
+    <input type="submit" value="Submit" />
+}
